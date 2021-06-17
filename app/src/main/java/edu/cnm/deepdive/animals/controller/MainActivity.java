@@ -67,14 +67,14 @@ public class MainActivity extends AppCompatActivity {
           //random animal generator
 
           List<Animal> animals = response.body();
-          Random rng = new Random();
           //assert animals != null;
-          String url = animals.get(rng.nextInt(animals.size())).getImageURL();
+          String url = animals.get(0).getImageURL();
+          contentView.loadUrl(url);
+          ArrayAdapter<Animal>adapter = new ArrayAdapter<>(MainActivity.this,
+              R.layout.item_animal_spinner, animals );
 
           runOnUiThread(() -> {
-            contentView.loadUrl(url);
-            ArrayAdapter<Animal>adapter = new ArrayAdapter<>(MainActivity.this,
-                android.R.layout.simple_dropdown_item_1line, animals );
+
             animalSelector.setAdapter(adapter);
 
           });
