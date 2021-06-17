@@ -5,6 +5,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import edu.cnm.deepdive.animals.BuildConfig;
@@ -12,6 +14,7 @@ import edu.cnm.deepdive.animals.R;
 import edu.cnm.deepdive.animals.model.Animal;
 import edu.cnm.deepdive.animals.service.WebServiceProxy;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import retrofit2.Response;
@@ -20,6 +23,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
   private WebView contentView;
+  private Spinner animalSelector;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     contentView = findViewById(R.id.content_view);
     setWebView();
+    animalSelector = findViewById(R.id.animal_selector);
 
   }
 
@@ -58,17 +64,19 @@ public class MainActivity extends AppCompatActivity {
             .getAnimals(BuildConfig.API_KEY)
             .execute();
         if (response.isSuccessful()) {
-       //random animal generator
+          //random animal generator
 
-          List<Animal>animals = response.body();
+          List<Animal> animals = response.body();
           Random rng = new Random();
+          //assert animals != null;
           String url = animals.get(rng.nextInt(animals.size())).getImageURL();
 
-          runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              contentView.loadUrl(url);
-            }
+          runOnUiThread(() -> {
+            contentView.loadUrl(url);
+            ArrayAdapter<Animal>adapter = new ArrayAdapter<>(MainActivity.this,
+                android.R.layout.simple_dropdown_item_1line, animals );
+            animalSelector.setAdapter(adapter);
+
           });
 
         } else {
