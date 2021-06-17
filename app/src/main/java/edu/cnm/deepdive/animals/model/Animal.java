@@ -4,29 +4,28 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
-
-
 public class Animal {
+
   @Expose
   private String name;
 
   @SerializedName("image")
+  @Expose
+  private String imageURL;
 
-  private String  imageURL;
-
-    public String getName() {
+  public String getName() {
     return name;
   }
 
-    public void setName(String name) {
+  public void setName(String name) {
     this.name = name;
   }
 
-    public String getImageURL() {
+  public String getImageURL() {
     return imageURL;
   }
 
-    public void setImageURL(String imageURL) {
+  public void setImageURL(String imageURL) {
     this.imageURL = imageURL;
   }
 

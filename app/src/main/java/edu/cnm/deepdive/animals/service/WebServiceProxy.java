@@ -45,7 +45,7 @@ public interface WebServiceProxy {
           .client(client)
           .build();
 
-    INSTANCE = retrofit.create(WebServiceProxy.class);
+      INSTANCE = retrofit.create(WebServiceProxy.class);
 
     }
   }
