@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.animals.controller;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
   private ImageView image;
   private Spinner animalSelector;
+  private ArrayAdapter<Animal> adapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -32,48 +34,52 @@ public class MainActivity extends AppCompatActivity {
     animalSelector = findViewById(R.id.animal_selector);
     animalSelector.setOnItemSelectedListener(new OnItemSelectedListener() {
       @Override
-      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Animal animal = (Animal) parent.getItemAtPosition(position);
-        Picasso.get().load(animal.getImageURL()).into(image);
-
+      public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+        Animal animal = (Animal) adapterView.getItemAtPosition(position);
+        Picasso.get().load(animal.getImageUrl()).into(image);
       }
 
       @Override
-      public void onNothingSelected(AdapterView<?> parent) {
+      public void onNothingSelected(AdapterView<?> adapterView) {
+
       }
     });
-    new Retriever().start();
-
+    new RetrieverTask().execute();
   }
 
 
-  private class Retriever extends Thread {
-
+  private class RetrieverTask extends AsyncTask<Void, Void, List<Animal>> {
 
     @Override
-    public void run() {
+    protected List<Animal> doInBackground(Void... voids) {
       try {
         Response<List<Animal>> response = WebServiceProxy.getInstance()
             .getAnimals(BuildConfig.API_KEY)
             .execute();
         if (response.isSuccessful()) {
-          //random animal generator
-
-          List<Animal> animals = response.body();
-          //assert animals != null;
-          ArrayAdapter<Animal> adapter = new ArrayAdapter<>(MainActivity.this,
-              R.layout.item_animal_spinner, animals);
-          adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-          runOnUiThread(() -> animalSelector.setAdapter(adapter));
-
+          return response.body();
         } else {
           Log.e(getClass().getName(), response.message());
+          cancel(true);
+          return null;
         }
       } catch (IOException e) {
         Log.e(getClass().getName(), e.getMessage(), e);
+        cancel(true);
+        return null;
       }
+    }
+
+    @Override
+    protected void onPostExecute(List<Animal> animals) {
+      super.onPostExecute(animals);
+      adapter = new ArrayAdapter<>(MainActivity.this,
+          R.layout.item_animal_spinner, animals);
+      adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+      animalSelector.setAdapter(adapter);
 
     }
 
   }
 }
+
